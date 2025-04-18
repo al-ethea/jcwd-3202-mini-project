@@ -20,8 +20,6 @@ model Sample {
 
   @@map("samples") // if you want to use snake_case format
 }
-<<<<<<< Updated upstream
-=======
 
 model User{ // many
   id String @id @default(uuid())
@@ -167,4 +165,3 @@ enum Status{
 //   deletedAt DateTime?
 //   @@map("roles")
 // }
->>>>>>> Stashed changes
