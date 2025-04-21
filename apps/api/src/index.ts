@@ -1,5 +1,6 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
+import authRouter from './routers/auth.router';
 
 const app: Express = express();
 const port = 5001;
@@ -13,6 +14,8 @@ app.use(
 app.get('/', (req: Request, res: Response) => {
   res.send('<h1>Welcome to Express Typescript Server</h1>');
 });
+
+app.use('/api/users', authRouter);
 
 // Centralized Error
 interface IError extends Error {

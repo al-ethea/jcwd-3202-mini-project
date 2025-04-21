@@ -44,7 +44,6 @@ model User{ // many
 model Event{ //many
   id Int @id @default(autoincrement())
   name String
-  artist String
   city String
   venue String
   date DateTime
@@ -55,9 +54,9 @@ model Event{ //many
   type Type
 
   userId String
-  users User @relation(fields: [userId],references: [id])
+  user User @relation(fields: [userId],references: [id])
   artistId Int
-  artists Artist @relation(fields: [artistId], references: [id])
+  artist Artist @relation(fields: [artistId], references: [id])
 
   registrations  Registration[] // Many-to-many via Registration
 
@@ -140,7 +139,7 @@ model Registration{ // many
 }
 
 enum Role{
-  USER
+  ATTENDEE
   ORGANIZER
 }
 
