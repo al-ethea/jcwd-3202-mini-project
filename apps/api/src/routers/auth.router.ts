@@ -1,4 +1,4 @@
-import { registerUser } from '@/controllers/auth.controller';
+import { loginUser, registerUser } from '@/controllers/auth.controller';
 import { registerUserValidator } from '@/middlewares/express.validator/auth.validator';
 import { errorValidatorHandler } from '@/middlewares/express.validator/error.handler';
 import { Router } from 'express';
@@ -11,5 +11,6 @@ authRouter.post(
   errorValidatorHandler,
   registerUser,
 );
+authRouter.post('/login', loginUser);
 
 export default authRouter;
