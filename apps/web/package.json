@@ -14,7 +14,14 @@
     "next": "14.0.4",
     "react": "^18",
     "react-dom": "^18",
+<<<<<<< Updated upstream
     "react-icons": "^5.5.0"
+=======
+    "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5",
+    "yup": "^1.6.1",
+    "zustand": "^5.0.3"
+>>>>>>> Stashed changes
   },
   "devDependencies": {
     "@types/node": "^20",
