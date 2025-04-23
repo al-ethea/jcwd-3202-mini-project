@@ -47,19 +47,7 @@ model Event{ //many
   city String
   venue String
   date DateTime
-  category String
-  price Int
-  description String
-  availableSeats Int
-  type Type
-
-  userId String
-  user User @relation(fields: [userId],references: [id])
-  artistId Int
-  artist Artist @relation(fields: [artistId], references: [id])
-
-  registrations  Registration[] // Many-to-many via Registration
-
+  genre String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -135,32 +123,5 @@ model Registration{ // many
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
-  @@map("registrations")
+  @@map("roles")
 }
-
-enum Role{
-  ATTENDEE
-  ORGANIZER
-}
-
-enum Type{
-  FREE
-  PAID
-}
-
-enum Status{
-  PAYMENT_ACCEPTED
-  PAYMENT_DECLINED
-}
-
-// model Role{ // one
-//   id Int @id @default(autoincrement())
-//   name String
-
-//   users User[]
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   deletedAt DateTime?
-//   @@map("roles")
-// }

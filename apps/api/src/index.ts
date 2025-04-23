@@ -39,3 +39,6 @@ app.use((err: IError, req: Request, res: Response, next: NextFunction) => {
 app.listen(port, () => {
   console.log(`🍏 [server]: Server is running at http://localhost:${port}`);
 });
+app.listen(port, () => {
+  console.log(`🍏 [server]: Server is running at http://localhost:${port}`);
+});
