@@ -3,7 +3,7 @@ import cors from 'cors';
 import authRouter from './routers/auth.router';
 
 const app: Express = express();
-const port = 5001;
+const port = 5005;
 app.use(express.json());
 app.use(
   cors({
@@ -39,6 +39,4 @@ app.use((err: IError, req: Request, res: Response, next: NextFunction) => {
 app.listen(port, () => {
   console.log(`🍏 [server]: Server is running at http://localhost:${port}`);
 });
-app.listen(port, () => {
-  console.log(`🍏 [server]: Server is running at http://localhost:${port}`);
-});
+

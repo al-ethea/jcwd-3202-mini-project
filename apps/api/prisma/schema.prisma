@@ -28,6 +28,7 @@ model User{ // many
   postcode String
   email String
   password String
+  referralCode String? @unique
   role Role
   
   review Review[]
@@ -44,10 +45,24 @@ model User{ // many
 model Event{ //many
   id Int @id @default(autoincrement())
   name String
+  bannerUrl String? 
   city String
   venue String
   date DateTime
-  genre String
+  category String
+  price Int
+  description String
+  availableSeats Int
+  type Type
+
+  userId String
+  user User @relation(fields: [userId],references: [id])
+  artistId Int
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  registrations  Registration[] // Many-to-many via Registration
+  reviews Review[] // One-to-many via Review
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
@@ -58,6 +73,7 @@ model Artist{ //one
   id Int @id @default(autoincrement())
   name String
   category String
+  imageUrl String?
 
   events Event[]
 
@@ -75,6 +91,8 @@ model Review{
 
   userId    String
   user      User    @relation(fields: [userId], references: [id])
+  eventId   Int
+  event     Event   @relation(fields: [eventId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -99,6 +117,7 @@ model Point{ // one to one - user
 model Transaction{ //many
   id Int @id @default(autoincrement())
   status Status
+  expireAt DateTime
 
   registrationId Int @unique
   registration Registration @relation(fields: [registrationId], references: [id])
@@ -123,5 +142,33 @@ model Registration{ // many
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?
-  @@map("roles")
+  @@map("registrations")
 }
+
+enum Role{
+  ATTENDEE
+  ORGANIZER
+}
+
+enum Type{
+  FREE
+  PAID
+}
+
+enum Status{
+  PAYMENT_ACCEPTED
+  WAITING_FOR_PAYMENT
+  EXPIRED
+}
+
+// model Role{ // one
+//   id Int @id @default(autoincrement())
+//   name String
+
+//   users User[]
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   deletedAt DateTime?
+//   @@map("roles")
+// }

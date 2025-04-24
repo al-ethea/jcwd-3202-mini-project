@@ -94,11 +94,39 @@ export const loginUser = async (
       message: 'Login successfully',
       data: {
         token,
-        userId: findUserByEmail,
-        userRole: findUserByEmail.role,
+        email: findUserByEmail.email,
+        role: findUserByEmail.role,
       },
     });
   } catch (error) {
     next(error);
   }
 };
+
+export const sessionLoginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { payload } = req.body;
+
+    const findUserByUserId = await prisma.user.findFirst({
+      where: { id: payload.userId },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Session login successfully',
+      data: {
+        token: req.headers.authorization?.split(' ')[1],
+        email: findUserByUserId?.email,
+        role: findUserByUserId?.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyEmail = async () => {};
