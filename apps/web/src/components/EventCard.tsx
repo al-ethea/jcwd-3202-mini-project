@@ -13,7 +13,7 @@ export const events = [
 
 export default function EventCardList() {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 rounded-lg">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 rounded-lg">
       {events.map((event, idx) => (
         <div key={idx} className="bg-[#2f2d2d] hover:bg-[#3a3838] cursor-pointer rounded overflow-hidden group relative pb-5">
           <Image

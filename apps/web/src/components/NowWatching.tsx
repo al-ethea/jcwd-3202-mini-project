@@ -35,7 +35,7 @@ export default function NowWatching() {
   const [selectedVideo, setSelectedVideo] = useState(videoList[0]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 min-h-screen">
+    <div className="flex flex-col md:flex-row gap-6">
       {/* Main Video */}
       <div className="flex-1">
         <div className="aspect-video w-full rounded overflow-hidden max-h-[500px]">

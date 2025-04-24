@@ -4,6 +4,7 @@ import Image from 'next/image';
 import DatePicker from '../components/DatePicker';
 import EventCardList from '../components/EventCard';
 import NowWatching from '@/components/NowWatching';
+import LastCallForTickets from '@/components/LastCall';
 
 export default function Home() {
   return (
@@ -112,6 +113,10 @@ export default function Home() {
         <div className='mt-14'>
           <h1 className="text-3xl font-bold pb-6">WHAT WE'RE WATCHING?</h1>
           <NowWatching />
+        </div>
+        <div className='mt-14'>
+          <h1 className="text-3xl font-bold pb-6">Last Call For Tickets</h1>
+          <LastCallForTickets />
         </div>
       </section>
     </div>
