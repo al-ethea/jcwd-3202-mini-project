@@ -4,3 +4,4 @@ module.exports = {
     autoprefixer: {}, // Autoprefixer for browser compatibility
   },
 };
+
