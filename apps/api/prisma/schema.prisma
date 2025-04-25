@@ -6,8 +6,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Sample {
@@ -19,3 +20,155 @@ model Sample {
 
   @@map("samples") // if you want to use snake_case format
 }
+
+model User{ // many
+  id String @id @default(uuid())
+  firstName String
+  lastName String
+  postcode String
+  email String
+  password String
+  referralCode String? @unique
+  role Role
+  
+  review Review[]
+  registrations  Registration[]
+  points Point[]
+  events Event[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("users")
+}
+
+model Event{ //many
+  id Int @id @default(autoincrement())
+  name String
+  bannerUrl String? 
+  city String
+  venue String
+  date DateTime
+  category String
+  price Int
+  description String
+  availableSeats Int
+  type Type
+
+  userId String
+  user User @relation(fields: [userId],references: [id])
+  artistId Int
+  artist Artist @relation(fields: [artistId], references: [id])
+
+  registrations  Registration[] // Many-to-many via Registration
+  reviews Review[] // One-to-many via Review
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("events")
+}
+
+model Artist{ //one
+  id Int @id @default(autoincrement())
+  name String
+  category String
+  imageUrl String?
+
+  events Event[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@map("artists")
+}
+
+model Review{
+  id Int @id @default(autoincrement())
+  rating Int
+  feedback String
+
+  userId    String
+  user      User    @relation(fields: [userId], references: [id])
+  eventId   Int
+  event     Event   @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("reviews")
+}
+
+model Point{ // one to one - user
+  id Int @id @default(autoincrement())
+  amount Int
+  expirationDate DateTime
+
+  userId String @unique
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("points")
+}
+
+model Transaction{ //many
+  id Int @id @default(autoincrement())
+  status Status
+  expireAt DateTime
+
+  registrationId Int @unique
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("transactions")
+}
+
+model Registration{ // many
+  id Int @id @default(autoincrement())
+
+  transaction  Transaction? // one-to-one (optional)
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  eventId Int
+  event Event @relation(fields: [eventId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("registrations")
+}
+
+enum Role{
+  ATTENDEE
+  ORGANIZER
+}
+
+enum Type{
+  FREE
+  PAID
+}
+
+enum Status{
+  PAYMENT_ACCEPTED
+  WAITING_FOR_PAYMENT
+  EXPIRED
+}
+
+// model Role{ // one
+//   id Int @id @default(autoincrement())
+//   name String
+
+//   users User[]
+
+//   createdAt DateTime @default(now())
+//   updatedAt DateTime @updatedAt
+//   deletedAt DateTime?
+//   @@map("roles")
+// }
