@@ -1,7 +1,7 @@
 import { body } from 'express-validator';
 
 export const registerUserValidator = [
-  body(['firstName', 'lastName', 'postcode', 'email', 'password', 'role'])
+  body(['firstName', 'lastName', 'postcode', 'email', 'password'])
     .notEmpty()
     .withMessage('All fields are required'),
   body('email').isEmail().withMessage('Invalid email format'),

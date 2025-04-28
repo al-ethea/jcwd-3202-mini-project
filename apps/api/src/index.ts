@@ -1,6 +1,7 @@
 import express, { Express, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import authRouter from './routers/auth.router';
+import attendeeRouter from './routers/attendee.router';
 
 const app: Express = express();
 const port = 5005;
@@ -16,6 +17,7 @@ app.get('/', (req: Request, res: Response) => {
 });
 
 app.use('/api/users', authRouter);
+app.use('/api/attendees', attendeeRouter);
 
 // Centralized Error
 interface IError extends Error {
@@ -39,4 +41,3 @@ app.use((err: IError, req: Request, res: Response, next: NextFunction) => {
 app.listen(port, () => {
   console.log(`🍏 [server]: Server is running at http://localhost:${port}`);
 });
-

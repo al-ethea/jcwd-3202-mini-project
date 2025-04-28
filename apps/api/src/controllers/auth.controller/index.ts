@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from 'express';
 import { prisma } from '../../connection';
 import { hashPassword } from '@/utils/hash.password';
-import { Role } from '@prisma/client';
 import { comparePassword } from '@/utils/compare.password';
 import { jwtSign } from '@/utils/jwt.sign';
+import { generateReferralCode } from '@/utils/generate.referral.code';
 
 export const registerUser = async (
   req: Request,
@@ -11,18 +11,7 @@ export const registerUser = async (
   next: NextFunction,
 ) => {
   try {
-    const { firstName, lastName, email, postcode, password, role } = req.body;
-
-    const validRoles = Object.values(Role);
-
-    if (!validRoles.includes(role)) {
-      throw {
-        isExpose: true,
-        status: 400,
-        message: `Invalid role. Valid roles are: ${validRoles.join(', ')}`,
-      };
-    }
-
+    const { firstName, lastName, email, postcode, password } = req.body;
     const findUserByEmail = await prisma.user.findFirst({
       where: {
         email,
@@ -35,6 +24,18 @@ export const registerUser = async (
 
     const hashedPassword = await hashPassword(password);
 
+    let referralCode = generateReferralCode();
+    let isUnique = false;
+    while (!isUnique) {
+      const existingReferral = await prisma.user.findUnique({
+        where: { referralCode },
+      });
+      if (!existingReferral) {
+        isUnique = true;
+      } else {
+        referralCode = generateReferralCode(); // regenerate if conflict
+      }
+    }
     await prisma.user.create({
       data: {
         firstName,
@@ -42,7 +43,9 @@ export const registerUser = async (
         email,
         postcode,
         password: hashedPassword,
-        role,
+        role: 'ATTENDEE',
+        referralCode,
+        totalPoints: 0,
       },
     });
 
@@ -129,4 +132,69 @@ export const sessionLoginUser = async (
   }
 };
 
-export const verifyEmail = async () => {};
+export const registerOrganizer = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { companyName, address, phoneNumber } = req.body;
+    const userId = req.body.payload;
+
+    const result = prisma.$transaction(async (tx) => {
+      if (!userId) {
+        throw { isExpose: true, status: 401, message: 'Unauthorized' };
+      }
+
+      // Find user
+      const user = await prisma.user.findFirst({
+        where: { id: userId },
+      });
+
+      if (!user) {
+        throw { isExpose: true, status: 404, message: 'User not found' };
+      }
+
+      // Check if already organizer
+      const existingProfile = await prisma.organizerProfile.findFirst({
+        where: { userId: userId },
+      });
+
+      if (existingProfile) {
+        throw {
+          isExpose: true,
+          status: 400,
+          message: 'Organizer profile already exists',
+        };
+      }
+
+      // Create organizer profile
+      const organizerProfile = await prisma.organizerProfile.create({
+        data: {
+          companyName,
+          address,
+          phoneNumber,
+          userId,
+        },
+      });
+
+      // (Optional) Update user role to ORGANIZER immediately
+      return await prisma.user.update({
+        where: { id: userId },
+        data: {
+          role: 'ORGANIZER',
+        },
+      });
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Organizer profile created successfully',
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// export const verifyEmail = async () => {};

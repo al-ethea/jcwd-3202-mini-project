@@ -1,5 +1,6 @@
 import {
   loginUser,
+  registerOrganizer,
   registerUser,
   sessionLoginUser,
 } from '@/controllers/auth.controller';
@@ -18,5 +19,6 @@ authRouter.post(
 );
 authRouter.post('/login', loginUser);
 authRouter.get('/session-login', jwtDecode, sessionLoginUser);
+authRouter.post('/register-organizer', jwtDecode, registerOrganizer);
 
 export default authRouter;
