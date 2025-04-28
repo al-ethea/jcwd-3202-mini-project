@@ -47,7 +47,7 @@
     "postcss": "^8.5.3",
     "react-day-picker": "^9.6.7",
     "swiper": "^11.2.6",
-    "tailwindcss": "^4.1.4"
+    "tailwindcss": "^4.1.4",
     "zustand": "^5.0.3"
   }
 }

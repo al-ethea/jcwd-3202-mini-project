@@ -5,6 +5,9 @@ import DatePicker from '../components/DatePicker';
 import EventCardList from '../components/EventCard';
 import NowWatching from '@/components/NowWatching';
 import LastCallForTickets from '@/components/LastCall';
+import SearchByArtistOrEvent from '@/components/SearchByArtistOrEvent';
+import EventRating from '@/components/EventRating';
+import CallToSignUp from '@/components/CallToSignUp';
 
 export default function Home() {
   return (
@@ -110,13 +113,23 @@ export default function Home() {
           <h1 className="text-3xl font-bold mb-6">UPCOMING SHOWS</h1>
           <EventCardList />
         </div>
-        <div className='mt-14'>
+        <div className="mt-14">
           <h1 className="text-3xl font-bold pb-6">WHAT WE'RE WATCHING?</h1>
           <NowWatching />
         </div>
-        <div className='mt-14'>
+        <div className="mt-14">
           <h1 className="text-3xl font-bold pb-6">Last Call For Tickets</h1>
           <LastCallForTickets />
+        </div>
+        {/* fitur search events and closest events */}
+        <div className="mt-14 flex flex-col items-center justify-center">
+          <SearchByArtistOrEvent />
+        </div>
+        <div className="mt-14 flex flex-col items-center justify-center">
+          <EventRating/>
+        </div>
+        <div className="mt-14 flex flex-col items-center justify-center lg: -mx-20 -my-15">
+          <CallToSignUp />
         </div>
       </section>
     </div>
