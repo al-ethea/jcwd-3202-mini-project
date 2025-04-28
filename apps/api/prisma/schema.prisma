@@ -21,20 +21,23 @@ model Sample {
   @@map("samples") // if you want to use snake_case format
 }
 
-model User{ // many
+model User{
   id String @id @default(uuid())
   firstName String
   lastName String
   postcode String
   email String
   password String
-  referralCode String? @unique
-  role Role
-  
-  review Review[]
-  registrations  Registration[]
-  points Point[]
-  events Event[]
+  role Role @default(ATTENDEE) // by default
+  referralCode String @unique
+  totalPoints Int @default(0)
+
+  review Review[] // 1-m
+  registrations  Registration[] //1-m
+  organizerProfile OrganizerProfile? //1-1
+
+  givenBy Referral[] @relation("givenBy")
+  referredTo Referral[] @relation("referredTo")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -42,7 +45,107 @@ model User{ // many
   @@map("users")
 }
 
-model Event{ //many
+model OrganizerProfile { // one to one user
+  id          Int     @id @default(autoincrement())
+  companyName String
+  address     String
+  phoneNumber String
+  verified    Boolean @default(false)
+
+  userId      String  @unique
+  user        User    @relation(fields: [userId], references: [id])
+
+  event Event[] // 1-m
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+
+  @@map("organizer_profiles")
+}
+
+model Referral{
+  id              Int      @id @default(autoincrement())
+  discountCode String
+  discountStatus discountStatus @default(ACTIVE)
+
+  referralGiverUserId String
+  givenBy User @relation("givenBy", fields: [referralGiverUserId], references: [id])
+
+  referredUserId String
+  referredTo User @relation("referredTo", fields: [referredUserId],references: [id])
+
+  pointsHistoryId Int @unique
+  pointsHistory PointsHistory @relation(fields: [pointsHistoryId], references: [id])
+
+  // 1 to 1 regis optional
+  registration Registration?
+
+  createdAt DateTime @default(now())
+
+  @@map("referrals")
+}
+
+model PointsHistory{
+  id Int @id @default(autoincrement())
+  amount Int
+  expirationDate DateTime
+
+  // 1 to 1 regis optional
+  // poin berkurang
+  registration Registration?
+
+  // 1 to 1 referral optional
+  //poin bertambah
+  referral Referral?
+
+  createdAt DateTime @default(now())
+  @@map("points_history")
+}
+
+model Transaction{
+  id Int @id @default(autoincrement())
+  paymentStatus PaymentStatus
+  expireAt DateTime
+  amountToBePaid Int
+
+  registrationId Int @unique
+  registration Registration @relation(fields: [registrationId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("transactions")
+}
+
+model Registration{ // many
+  id Int @id @default(autoincrement())
+  discountUsed Boolean  @default(false)  // 10% referral discount
+  usedPoints   Int      @default(0)      // how many points were used
+  quantity Int
+  tax Int
+
+  transaction  Transaction? // one-to-one (optional)
+
+  userId String
+  user User @relation(fields: [userId], references: [id])
+
+  eventId Int
+  event Event @relation(fields: [eventId], references: [id])
+
+  referralId Int @unique
+  referral Referral @relation(fields: [referralId], references: [id])
+
+  pointsHistoryId Int @unique
+  pointsHistory PointsHistory @relation(fields: [pointsHistoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deletedAt DateTime?
+  @@map("registrations")
+}
+
+model Event{
   id Int @id @default(autoincrement())
   name String
   bannerUrl String? 
@@ -55,10 +158,11 @@ model Event{ //many
   availableSeats Int
   type Type
 
-  userId String
-  user User @relation(fields: [userId],references: [id])
   artistId Int
   artist Artist @relation(fields: [artistId], references: [id])
+
+  organizerProfileId Int
+  organizerProfile OrganizerProfile @relation(fields: [organizerProfileId], references: [id])
 
   registrations  Registration[] // Many-to-many via Registration
   reviews Review[] // One-to-many via Review
@@ -69,13 +173,13 @@ model Event{ //many
   @@map("events")
 }
 
-model Artist{ //one
+model Artist{
   id Int @id @default(autoincrement())
   name String
   category String
   imageUrl String?
 
-  events Event[]
+  events Event[] //1-m
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -100,51 +204,6 @@ model Review{
   @@map("reviews")
 }
 
-model Point{ // one to one - user
-  id Int @id @default(autoincrement())
-  amount Int
-  expirationDate DateTime
-
-  userId String @unique
-  user User @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-  @@map("points")
-}
-
-model Transaction{ //many
-  id Int @id @default(autoincrement())
-  status Status
-  expireAt DateTime
-
-  registrationId Int @unique
-  registration Registration @relation(fields: [registrationId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-  @@map("transactions")
-}
-
-model Registration{ // many
-  id Int @id @default(autoincrement())
-
-  transaction  Transaction? // one-to-one (optional)
-
-  userId String
-  user User @relation(fields: [userId], references: [id])
-
-  eventId Int
-  event Event @relation(fields: [eventId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-  @@map("registrations")
-}
-
 enum Role{
   ATTENDEE
   ORGANIZER
@@ -155,20 +214,14 @@ enum Type{
   PAID
 }
 
-enum Status{
-  PAYMENT_ACCEPTED
+enum PaymentStatus{
+  PAID
   WAITING_FOR_PAYMENT
   EXPIRED
 }
 
-// model Role{ // one
-//   id Int @id @default(autoincrement())
-//   name String
-
-//   users User[]
-
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   deletedAt DateTime?
-//   @@map("roles")
-// }
+enum discountStatus{
+  USED
+  ACTIVE
+  EXPIRED
+}
